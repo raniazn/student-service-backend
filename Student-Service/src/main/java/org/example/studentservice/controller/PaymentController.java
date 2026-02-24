@@ -29,7 +29,7 @@ public class PaymentController {
                               @RequestBody Payment payment){
 
         Student student = studentRepository.findById(studentId)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
 
         payment.setStudent(student);
         return paymentRepository.save(payment);
@@ -39,7 +39,8 @@ public class PaymentController {
     public Payment update(@PathVariable Long id,
                           @RequestBody Payment p){
 
-        Payment payment = paymentRepository.findById(id).orElseThrow();
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + id));
 
         payment.setType(p.getType());
         payment.setMontant(p.getMontant());
