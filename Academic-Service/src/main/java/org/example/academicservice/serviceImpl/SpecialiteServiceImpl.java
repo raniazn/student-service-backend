@@ -82,15 +82,29 @@ public class SpecialiteServiceImpl implements SpecialiteService {
 
     // ── Mapper ──
     private SpecialiteDTO toDTO(Specialite s) {
-        List<Long> moduleIds = (s.getModules() == null) ? List.of() :
-                s.getModules().stream().map(Module::getId).collect(Collectors.toList());
+
+        List<Long> moduleIds = (s.getModules() == null)
+                ? List.of()
+                : s.getModules()
+                .stream()
+                .map(Module::getId)
+                .collect(Collectors.toList());
+
+        String diplomeNom = (s.getDiplome() != null)
+                ? s.getDiplome().getNom()
+                : null;
+
+        String cycleNom = (s.getDiplome() != null && s.getDiplome().getCycle() != null)
+                ? s.getDiplome().getCycle().getNom()
+                : null;
+
         return SpecialiteDTO.builder()
                 .id(s.getId())
                 .nom(s.getNom())
                 .niveauSemestre(s.getNiveauSemestre())
-                .diplomeId(s.getDiplome().getId())
-                .diplomeNom(s.getDiplome().getNom())
-                .cycleNom(s.getDiplome().getCycle().getNom())
+                .diplomeId(s.getDiplome() != null ? s.getDiplome().getId() : null)
+                .diplomeNom(diplomeNom)
+                .cycleNom(cycleNom)
                 .moduleIds(moduleIds)
                 .build();
     }

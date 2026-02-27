@@ -1,4 +1,6 @@
 package org.example.academicservice.entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -23,6 +25,7 @@ public class Specialite {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diplome_id", nullable = false)
+    @JsonBackReference
     private Diplome diplome;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -31,6 +34,7 @@ public class Specialite {
             joinColumns = @JoinColumn(name = "specialite_id"),
             inverseJoinColumns = @JoinColumn(name = "module_id")
     )
+    @JsonIgnore
     private List<Module> modules;
 }
 

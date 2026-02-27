@@ -4,28 +4,34 @@ import org.example.academicservice.dto.ModuleDTO;
 import org.example.academicservice.entity.Module;
 import org.example.academicservice.repository.ModuleRepository;
 import org.example.academicservice.service.ModuleService;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepository moduleRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ModuleDTO> getAll() {
-        return moduleRepository.findAll()
+        return moduleRepository.findAllWithSpecialites()   // 🔥 IMPORTANT
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ModuleDTO> search(String nom) {
         return moduleRepository.findByNomContainingIgnoreCase(nom)
                 .stream()
@@ -34,6 +40,7 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ModuleDTO getById(Long id) {
         return toDTO(
                 moduleRepository.findById(id)
@@ -62,13 +69,23 @@ public class ModuleServiceImpl implements ModuleService {
 
     @Override
     public void delete(Long id) {
-        if (!moduleRepository.existsById(id)) {
-            throw new EntityNotFoundException("Module non trouvé : " + id);
+
+        Module module = moduleRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Module non trouvé : " + id));
+
+        // Supprimer les relations ManyToMany
+        if (module.getSpecialites() != null) {
+            module.getSpecialites().forEach(specialite ->
+                    specialite.getModules().remove(module)
+            );
         }
-        moduleRepository.deleteById(id);
+
+        moduleRepository.delete(module);
     }
 
     private ModuleDTO toDTO(Module m) {
+
         List<String> specs =
                 (m.getSpecialites() == null)
                         ? List.of()

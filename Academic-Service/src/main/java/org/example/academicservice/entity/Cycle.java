@@ -1,5 +1,6 @@
 package org.example.academicservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -20,5 +21,6 @@ public class Cycle {
     private String nom;
 
     @OneToMany(mappedBy = "cycle", cascade = CascadeType.ALL)
-    private List<Diplome> diplomes;  // ← supprimer com.academicservice.entity.Diplome
+    @JsonManagedReference
+    private List<Diplome> diplomes;
 }
